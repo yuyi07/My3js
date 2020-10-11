@@ -35,18 +35,24 @@ function init(){
 	var grid = new THREE.GridHelper (100, 10, 'red', 'white');
 	scene.add(grid);
 	
-	var geometry = new THREE.BoxGeometry(25, 10, 10);
+	var geometry = new THREE.BoxGeometry(10, 30, 10);
 	var material = new THREE.MeshNormalMaterial();
-	var box = new THREE.Mesh(geometry, material);
-	box.position.set(12.5, 5, 0);
+	var box1 = new THREE.Mesh(geometry, material);
+	box1.position.set(5, 15, 5);
 	
-	var geometry1 = new THREE.CylinderGeometry(5, 5, 10, 64);
-	var cylinder = new THREE.Mesh(geometry1, material);
-	cylinder.position.set(20, 15, 0);
+	var geometry = new THREE.BoxGeometry(20, 10, 10);
+	var material = new THREE.MeshNormalMaterial();
+	var box2 = new THREE.Mesh(geometry, material);
+	box2.position.set(20, 5, 5);
 	
-	scene.add(cylinder);
-	scene.add(box);
-	
+	var geometry = new THREE.BoxGeometry(10, 30, 10);
+	var material = new THREE.MeshNormalMaterial();
+	var box3 = new THREE.Mesh(geometry, material);
+	box3.position.set(35, 15, 5);
+
+	scene.add(box1);
+	scene.add(box2);
+	scene.add(box3);
 	
 }
 
