@@ -38,17 +38,17 @@ function init(){
 	var geometry = new THREE.BoxGeometry(10, 30, 10);
 	var material = new THREE.MeshNormalMaterial();
 	var box1 = new THREE.Mesh(geometry, material);
-	box1.position.set(5, 15, 5);
+	box1.position.set(5, 15, -5);
 	
 	var geometry = new THREE.BoxGeometry(20, 10, 10);
 	var material = new THREE.MeshNormalMaterial();
 	var box2 = new THREE.Mesh(geometry, material);
-	box2.position.set(20, 5, 5);
+	box2.position.set(20, 5, -5);
 	
 	var geometry = new THREE.BoxGeometry(10, 30, 10);
 	var material = new THREE.MeshNormalMaterial();
 	var box3 = new THREE.Mesh(geometry, material);
-	box3.position.set(35, 15, 5);
+	box3.position.set(35, 15, -5);
 
 	scene.add(box1);
 	scene.add(box2);
