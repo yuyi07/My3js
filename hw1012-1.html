@@ -35,17 +35,16 @@ function init(){
 	var grid = new THREE.GridHelper (100, 10, 'red', 'white');
 	scene.add(grid);
 	
-	var geometry = new THREE.BoxGeometry(25, 10, 10);
+	var geometry = new THREE.BoxGeometry(25, 5, 10);
 	var material = new THREE.MeshNormalMaterial();
 	var box = new THREE.Mesh(geometry, material);
-	box.position.set(12.5, 5, 0);
+	box.position.set(12.5, 2.5, 0);
 	
 	var geometry1 = new THREE.CylinderGeometry(4, 4, 10, 64);
 	var cylinder = new THREE.Mesh(geometry1, material);
-	cylinder.position.set(20, 15, 0);
+	cylinder.position.set(21, 10, 0);
 	
-	scene.add(cylinder);
-	scene.add(box);
+	scene.add(cylinder, box); // 可以一次加進去
 	
 	
 }
