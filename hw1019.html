@@ -95,7 +95,7 @@ var angle = 0;
 function animate(){
 
 	angle += 0.01;
-	people.position.set (8*Math.cos(angle), 0, 8*Math.sin(angle));
+	people.position.set (30*Math.cos(angle), 0, 30*Math.sin(angle));
 	people.rotation.y = -angle;
 	
 	renderer.render (scene, camera);
