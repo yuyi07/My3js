@@ -15,34 +15,63 @@
 <script>
 
 
+var camera, scene, renderer;
+var puck = [];
+
+var raycaster;
+var mouse = new THREE.Vector2();
+var pickables = [];
 var renderer, camera, scene, truck;
 var angle = 0;
 var axes;
 var steps, numStep, moveTo, theta1, theta2;
 var p, v, dq, front, now, next, ds;
+
 init();
 animate();
 
-function init(){
-	renderer = new THREE.WebGLRenderer({antialias: true});
-	renderer.setSize (window.innerWidth, window.innerHeight);
-	renderer.setClearColor (0x888888);
-	document.body.appendChild (renderer.domElement);
+function init() {
+  	scene = new THREE.Scene();
+
+  	camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 1000);
+  	camera.position.z = 500;
+
+ 	 var gridXZ = new THREE.GridHelper(200, 10, 'red', 'white');
+  	scene.add(gridXZ);
+
+  	renderer = new THREE.WebGLRenderer();
+  	renderer.setSize(window.innerWidth, window.innerHeight);
+  	renderer.setClearColor(0x888888);
+
+  	let controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+  	document.body.appendChild(renderer.domElement);
+
+  	/////////////////////////////////////////////////////////////////////
+  	plane = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), new THREE.MeshBasicMaterial({
+    	transparent: true,
+    	opacity: 0.5,
+    	visible: true
+  	}));
+  	scene.add(plane);
+  	plane.rotation.x = -Math.PI / 2;
+  	pickables = [plane];
 	
-	camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 1, 1000);
-	camera.position.z = 50;
+	puck = new THREE.Mesh(new THREE.CylinderGeometry(10, 10, 2, 20), new THREE.MeshNormalMaterial());
+  	scene.add(puck);
 	
-	var controls = new THREE.OrbitControls (camera, renderer.domElement);
-	scene = new THREE.Scene();
-	var grid = new THREE.GridHelper (100, 10, 'red', 'white');
-	scene.add(new THREE.AxesHelper(10));
-	scene.add(grid);
-	
+  
+  	raycaster = new THREE.Raycaster();
+  	document.addEventListener('pointerdown', onDocumentMouseDown, false);
+  	
+  	
 	initObject();
 	
 	var light = new THREE.PointLight( 0xffffff, 1, 1000 );
 	light.position.set( 0, 35, 0 );
 	scene.add( light );
+	
+
 	
 	p = [
 		new THREE.Vector3(50, 0, -50),
@@ -58,23 +87,34 @@ function init(){
 		new THREE.Mesh(new THREE.CircleGeometry (10, 20), new THREE.MeshBasicMaterial({color:'cyan'})),
 	];
 	
-	 for(let i = 0;i < 4;i++){
+	 for(let i = 1;i <= 4;i++){
  		 points[i].rotation.x = -Math.PI/2;
  		 points[i].position.copy(p[i]);
  		 scene.add(points[i]);
  	}
-	
-	
-	
+		
 	front = p.length-1;
 	now = 0;
 	next = 1;
 	
-	
 	isWalking = true;
 	walkingInit();
 	
-	
+}
+
+function onDocumentMouseDown(event) {
+
+  	event.preventDefault();
+  	mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  	mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  	// find intersections
+  	raycaster.setFromCamera(mouse, camera);
+  	var intersects = raycaster.intersectObjects(pickables);
+  	if (intersects.length > 0) {
+    	puck.position.copy(intersects[0].point);
+  	}
+
 }
 
 function initObject(){
