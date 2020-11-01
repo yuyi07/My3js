@@ -74,6 +74,10 @@ function init(){
 	isWalking = true;
 	walkingInit();
 	
+<<<<<<< HEAD
+=======
+	
+>>>>>>> master
 }
 
 
@@ -173,6 +177,7 @@ function animate(){
  
  	renderer.render(scene,camera);
  	requestAnimationFrame( animate );
+<<<<<<< HEAD
 }
 
 
@@ -184,6 +189,19 @@ function walkingInit(){
  	stepNum = 0;
 }
 
+=======
+}
+
+
+function walkingInit(){
+ 	v = p[next].clone().sub(p[now]);
+ 	ds = 0.31;
+ 	steps = Math.floor(v.length()/ds);
+ 	moveTo = p[now].clone();
+ 	stepNum = 0;
+}
+
+>>>>>>> master
 function walking(){
 	moveTo = moveTo.clone().add(v.clone().setLength(ds));
  	stepNum++;
