@@ -134,17 +134,18 @@ function rotatingInit(){
  
  	dq = 0.01;
  
- 	if(theta1 > theta2 && dq > 0){
- 		theta2 += 2*Math.PI;
-  		
+ 	if(theta1 < Math.PI && theta2 > Math.PI){
+ 	 	theta1 += Math.PI*2;
  	}
- 	else if(theta1 < theta2 && dq < 0){
- 		theta1 += 2*Math.PI;
-  		
+ 	if(theta1 > Math.PI && theta2 < Math.PI){
+  		theta2 += Math.PI*2;
  	}
  
  	steps = Math.floor((theta2-theta1)/dq);
- 	
+ 	if(theta1 > theta2){
+  		steps = -steps;
+  		dq = -dq;
+ 	}
  	numStep = 0;
  	moveTo = theta1;
 }
