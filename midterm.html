@@ -26,6 +26,7 @@ var angle = 0;
 var axes;
 var steps, numStep, moveTo, theta1, theta2;
 var p, v, dq, front, now, next, ds;
+var button;
 
 init();
 animate();
@@ -63,7 +64,7 @@ function init() {
   
   	raycaster = new THREE.Raycaster();
   	document.addEventListener('pointerdown', onDocumentMouseDown, false);
-  	
+
   	
 	initObject();
 	
@@ -71,13 +72,12 @@ function init() {
 	light.position.set( 0, 35, 0 );
 	scene.add( light );
 	
-
-	
+  	
 	p = [
-		new THREE.Vector3(50, 0, -50),
-		new THREE.Vector3(-50, 0, -50),
-		new THREE.Vector3(-50, 0, 50),
-		new THREE.Vector3(50, 0, 50),
+		new THREE.Vector3(0, 0, 0),
+		new THREE.Vector3(0, 0, 0),
+		new THREE.Vector3(0, 0, 0),
+		new THREE.Vector3(0, 0, 0),
 	];
 	
 	var points = [
@@ -92,7 +92,8 @@ function init() {
  		 points[i].position.copy(p[i]);
  		 scene.add(points[i]);
  	}
-		
+
+
 	front = p.length-1;
 	now = 0;
 	next = 1;
@@ -102,25 +103,42 @@ function init() {
 	
 }
 
+function whichBuottn(event){
+	if(event.button == 1){
+		button = 1;
+	}
+	if(event.button == 2){
+		button = 2;
+	}
+}
+
+
 function onDocumentMouseDown(event) {
 
   	event.preventDefault();
+  	
   	mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   	mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-  	// find intersections
+  		// find intersections
+  		
   	raycaster.setFromCamera(mouse, camera);
-  	var intersects = raycaster.intersectObjects(pickables);
-  	if (intersects.length > 0) {
-    	puck.position.copy(intersects[0].point);
-  	}
-  	//debugger;
-  	var newP = intersects[0].point.clone(); 	
-  	var newPoint = new THREE.Mesh(new THREE.CircleGeometry (10, 20), new THREE.MeshBasicMaterial({color:'white'}));
-	p.push(newP);
-	newPoint.rotation.x = -Math.PI/2;
-	newPoint.position.copy(newP);
-	scene.add(newPoint);
+  	document.addEventListener('contextmenu', event => event.preventDefault());
+  	
+ 	//if(button == 1){
+  		var intersects = raycaster.intersectObjects(pickables);
+  		if (intersects.length > 0) {
+    		puck.position.copy(intersects[0].point);
+  		}
+
+  		var newP = intersects[0].point.clone(); 	
+  		var newPoint = new THREE.Mesh(new THREE.CircleGeometry (10, 20), new THREE.MeshBasicMaterial({color:'white'}));
+		p.push(newP);
+		newPoint.rotation.x = -Math.PI/2;
+		newPoint.position.copy(newP);
+		scene.add(newPoint);
+	//}
+	
 }
 
 function initObject(){
