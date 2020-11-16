@@ -94,16 +94,16 @@ function init() {
  	}
 
 
-	front = p.length-1;
-	now = 0;
-	next = 1;
+	//front = p.length-1;
+	//now = 0;
+	//next = 1;
 	
-	isWalking = true;
-	walkingInit();
+	isWalking = false;
+	//walkingInit();
 	
 }
 
-function whichBuottn(event){
+function whichButton(event){
 	if(event.button == 1){
 		button = 1;
 	}
@@ -124,21 +124,29 @@ function onDocumentMouseDown(event) {
   		
   	raycaster.setFromCamera(mouse, camera);
   	document.addEventListener('contextmenu', event => event.preventDefault());
-  	
- 	//if(button == 1){
-  		var intersects = raycaster.intersectObjects(pickables);
-  		if (intersects.length > 0) {
-    		puck.position.copy(intersects[0].point);
-  		}
+  	whichButton(event);
+ 	
+  	var intersects = raycaster.intersectObjects(pickables);
+  	if (intersects.length > 0) {
+    	puck.position.copy(intersects[0].point);
+  	}
 
-  		var newP = intersects[0].point.clone(); 	
-  		var newPoint = new THREE.Mesh(new THREE.CircleGeometry (10, 20), new THREE.MeshBasicMaterial({color:'white'}));
-		p.push(newP);
-		newPoint.rotation.x = -Math.PI/2;
-		newPoint.position.copy(newP);
-		scene.add(newPoint);
-	//}
+  	var newP = intersects[0].point.clone(); 	
+  	var newPoint = new THREE.Mesh(new THREE.CircleGeometry (10, 20), new THREE.MeshBasicMaterial({color:'white'}));
+	p.push(newP);
+	newPoint.rotation.x = -Math.PI/2;
+	newPoint.position.copy(newP);
+	scene.add(newPoint);
 	
+	if(button == 2)
+	{
+	front = p.length-1;
+	now = 0;
+	next = 1;
+	
+	isWalking = true;
+	walkingInit();
+	}
 }
 
 function initObject(){
