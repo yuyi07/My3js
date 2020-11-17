@@ -2,32 +2,47 @@
 <html>
 <head>
 <style>
-
-
-</style>
+	#heading{
+	 position:absolute;
+	 text-align:center;
+	 width:100vw;
+	}
+</style> 
 </head>
 <body> 
-
+<div id = heading>
+	<button id='button'> Press </button>
+</div>
 <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-<script src="https://threejs.org/build/three.min.js"></script>
-<script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
-
-<script>
+<script type = "module">
 
 
+import * as THREE from 'https://unpkg.com/three/build/three.module.js';
+import { OrbitControls } from 'https://unpkg.com/three/examples/jsm/controls/OrbitControls.js';
+import { MTLLoader } from 'https://unpkg.com/three/examples/jsm/loaders/MTLLoader.js';
+import { OBJLoader } from 'https://unpkg.com/three/examples/jsm/loaders/OBJLoader.js';
+
+$('#button').click(function(){
+ walk = ! walk;
+ 
+ if(walk)
+	$('#button').text ('stop');
+ else
+    $('#button').text ('walk');
+});
 
 var camera, scene, renderer;
 var puck = [];
 
 var raycaster;
-var mouse = new THREE.Vector2();
+
 var pickables = [];
 var renderer, camera, scene, truck;
 var angle = 0;
 var axes;
 var steps, numStep, moveTo, theta1, theta2;
 var p, v, dq, front, now, next, ds;
-var button;
+var button, isWalking, stepNum, walk;
 
 init();
 animate();
@@ -45,12 +60,12 @@ function init() {
   	renderer.setSize(window.innerWidth, window.innerHeight);
   	renderer.setClearColor(0x888888);
 
-  	let controls = new THREE.OrbitControls(camera, renderer.domElement);
+  	let controls = new OrbitControls(camera, renderer.domElement);
 
   	document.body.appendChild(renderer.domElement);
 
   	/////////////////////////////////////////////////////////////////////
-  	plane = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), new THREE.MeshBasicMaterial({
+  	var plane = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), new THREE.MeshBasicMaterial({
     	transparent: true,
     	opacity: 0.5,
     	visible: true
@@ -67,7 +82,10 @@ function init() {
   	document.addEventListener('pointerdown', onDocumentMouseDown, false);
 
   	
-	initObject();
+	// initObject();
+	truck = new THREE.Object3D();
+	scene.add(truck);
+	readModel("truck");
 	
 	var light = new THREE.PointLight( 0xffffff, 1, 1000 );
 	light.position.set( 0, 35, 0 );
@@ -91,10 +109,12 @@ function init() {
 	  renderer.setSize(window.innerWidth, window.innerHeight);
 
 	}
+	
+	walk = true;
 }
 
 function whichButton(event){
-	if(event.button == 1){
+	if(event.button == 0){ // origin 1, actually this is 0
 		button = 1;
 	}
 	if(event.button == 2){
@@ -106,29 +126,33 @@ function whichButton(event){
 function onDocumentMouseDown(event) {
 
   	event.preventDefault();
-  	
-  	mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-  	mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-  		// find intersections
-  		
-  	raycaster.setFromCamera(mouse, camera);
   	document.addEventListener('contextmenu', event => event.preventDefault());
-  	whichButton(event);
- 	
-  	var intersects = raycaster.intersectObjects(pickables);
-  	if (intersects.length > 0) {
-    	puck.position.copy(intersects[0].point);
+  	whichButton(event);// determine button state
+  	if (button == 1) { // if press left mouse, then add new point
+  		var mouse = new THREE.Vector2();
+  		mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  		mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+	
+  			// find intersections
+  			
+  		raycaster.setFromCamera(mouse, camera);
+ 		
+ 		
+  		var intersects = raycaster.intersectObjects(pickables);
+  		if (intersects.length > 0) {
+    		puck.position.copy(intersects[0].point);
+    		var newP = intersects[0].point.clone(); 	
+  			var newPoint = new THREE.Mesh(new THREE.CircleGeometry (10, 20), new THREE.MeshBasicMaterial({color:'white'}));
+			p.push(newP);
+			newPoint.rotation.x = -Math.PI/2;
+			newPoint.position.copy(newP);
+			scene.add(newPoint);
+  		}
   	}
 
-  	var newP = intersects[0].point.clone(); 	
-  	var newPoint = new THREE.Mesh(new THREE.CircleGeometry (10, 20), new THREE.MeshBasicMaterial({color:'white'}));
-	p.push(newP);
-	newPoint.rotation.x = -Math.PI/2;
-	newPoint.position.copy(newP);
-	scene.add(newPoint);
+  	
 	
-	if(button == 2)
+	if(button == 2) // if press right mouse, then walk
 	{
 		front = p.length-1;
 		now = 0;
@@ -163,10 +187,9 @@ function readModel (modelName, targetSize=40) {
 		
 		let theObject =  unitize (object, targetSize);
 		//theObject.add ( new THREE.BoxHelper (theObject) )
-		theObject.name = 'OBJ'
-		scene.add (theObject);
-		
-		theObject.setRotationFromEuler (new THREE.Euler (3.1416/2, 0, -3.1416/2, 'ZYX'))
+		theObject.name = 'OBJ';
+		theObject.position.y = 10.5;
+		truck.add (theObject);
 
     }, onProgress, onError);
 
@@ -204,59 +227,14 @@ function unitize (object, targetSize) {
 	return theObject;
 			
 }
-
-function initObject(){
-	var shape = new THREE.Shape();
-	shape.moveTo( 0,0 );
-	shape.lineTo( 0, 8 );
-	shape.lineTo( 10, 8 );
-	shape.lineTo( 10, 5 );
-	shape.lineTo( 14, 5 );
-	shape.lineTo( 15, 3 );
-	shape.lineTo( 15, 0 );
-	shape.lineTo( 0, 0 );
-
-	var extrudeSettings = {
-		steps: 1,
-		depth: 5,
-		bevelEnabled: true,
-		bevelThickness: 1,
-		bevelSize: 1,
-		bevelOffset: 0,
-		bevelSegments: 1
-	};
-	var geometry = new THREE.ExtrudeGeometry( shape, extrudeSettings );
-	var material1 = new THREE.MeshLambertMaterial({color : 0x2580c4});
-	var box = new THREE.Mesh(geometry, material1);
-	box.position.set(0, 2.5, 0);
-	
-	
-	var geometry = new THREE.CylinderGeometry(1.5, 1.5, 5, 64);
-	var material2 = new THREE.MeshBasicMaterial({color : 0x000000});
-	var wheel1 = new THREE.Mesh(geometry, material2);
-	wheel1.rotation.x = Math.PI/2;
-	wheel1.position.set(3, 1.5, 2.5);
-	
-	var wheel2 = wheel1.clone();
-	wheel2.position.set(12, 1.5, 2.5);
-	
-	
-	truck = new THREE.Object3D();
-	truck.add(box, wheel1, wheel2);
-	scene.add(truck);
-	truck.position.set (50, 0, -50);
-	truck.rotation.y = Math.PI;
-	
-}
-
 function rotatingInit(){
  	var p12 = p[now].clone().sub(p[front].clone());
- 	theta1 = Math.atan2(p12.x, p12.z) + Math.PI*1.5;
+ 	theta1 = Math.atan2(p12.x, p12.z);
  	truck.position.copy(p[now]);
  	truck.rotation.y = theta1;
  
  	var p23 = p[next].clone().sub(p[now].clone());
- 	theta2 = Math.atan2(p23.x, p23.z) + Math.PI * 1.5;
+ 	theta2 = Math.atan2(p23.x, p23.z);
  
  	var delta = theta2 - theta1;
  	if (delta < 0) delta += Math.PI * 2;
@@ -273,8 +251,8 @@ function rotatingInit(){
  
  	steps = Math.floor((theta2-theta1)/dq);
  	
- 	numStep = 0;
- 	moveTo = theta1;
+ 	numStep = 1;
+ 	moveTo = theta1 + dp;
 }
 
 
@@ -294,11 +272,13 @@ function rotating(){
 
 
 function animate(){
- 	if(isWalking) 
- 		walking();
- 	else 
- 		rotating();
- 
+	if (walk) {
+ 		if(isWalking) 
+ 			walking();
+ 		else 
+ 			rotating();
+ 	}
+	
  	renderer.render(scene,camera);
  	requestAnimationFrame( animate );
 }
@@ -306,6 +286,10 @@ function animate(){
 
 function walkingInit(){
  	v = p[next].clone().sub(p[now]);
+ 	truck.position.copy(p[now]);
+ 	var p12 = p[next].clone().sub(p[now].clone());
+ 	theta1 = Math.atan2(p12.x, p12.z);
+ 	truck.rotation.y = theta1;
  	ds = 1;
  	steps = Math.floor(v.length()/ds);
  	moveTo = p[now].clone();
