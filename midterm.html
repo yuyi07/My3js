@@ -114,7 +114,7 @@ function init() {
 }
 
 function whichButton(event){
-	if(event.button == 0){ // origin 1, actually this is 0
+	if(event.button == 0){ 
 		button = 1;
 	}
 	if(event.button == 2){
@@ -127,8 +127,8 @@ function onDocumentMouseDown(event) {
 
   	event.preventDefault();
   	document.addEventListener('contextmenu', event => event.preventDefault());
-  	whichButton(event);// determine button state
-  	if (button == 1) { // if press left mouse, then add new point
+  	whichButton(event);
+  	if (button == 1) { 
   		var mouse = new THREE.Vector2();
   		mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   		mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -152,7 +152,7 @@ function onDocumentMouseDown(event) {
 
   	
 	
-	if(button == 2) // if press right mouse, then walk
+	if(button == 2) 
 	{
 		front = p.length-1;
 		now = 0;
