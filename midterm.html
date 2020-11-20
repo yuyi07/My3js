@@ -148,11 +148,7 @@ function onDocumentMouseDown(event) {
   	event.preventDefault();
   	document.addEventListener('contextmenu', event => event.preventDefault());
   	whichButton(event);
-<<<<<<< HEAD
-  	if (button == 1) { 
-=======
   	if (button == 1 && !lock) { 
->>>>>>> master
   		var mouse = new THREE.Vector2();
   		mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   		mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
