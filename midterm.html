@@ -51,7 +51,7 @@ function init() {
   	camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 1000);
   	camera.position.z = 500;
 
- 	 var gridXZ = new THREE.GridHelper(200, 10, 'red', 'white');
+ 	var gridXZ = new THREE.GridHelper(200, 10, 'red', 'white');
   	scene.add(gridXZ);
 
   	renderer = new THREE.WebGLRenderer();
