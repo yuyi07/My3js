@@ -1,0 +1,205 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+
+<style>
+#heading{
+	 position:absolute;
+	 text-align:center;
+	 width:100vw;
+	}
+</style> 
+</head>
+<div id = heading>
+	<button id='start'>Start</button>
+	<p id='msg'></p>
+</div>
+<body> 
+
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script type = "module">
+
+
+
+import * as THREE from 'https://unpkg.com/three/build/three.module.js';
+import { OrbitControls } from 'https://unpkg.com/three/examples/jsm/controls/OrbitControls.js';
+import { MTLLoader } from 'https://unpkg.com/three/examples/jsm/loaders/MTLLoader.js';
+import { OBJLoader } from 'https://unpkg.com/three/examples/jsm/loaders/OBJLoader.js';
+
+
+var renderer, scene, camera, controls;
+var counter, mesh;
+var plane, oldColor;
+var lit = true;
+init();
+animate();
+
+var clockOn = false; // whether the clock is running
+
+$('#start').click ( function() {
+	clockOn = true;
+	setTimeout (countDown, 0);
+	 
+  	counter = 5;
+});
+
+function countDown() {
+  if (clockOn === false) 
+  	return;
+  else{
+   // clock is still one: set next timeout
+  	setTimeout (countDown, 1000);
+  	if(counter > 0){
+  		setTimeout (textureAnimate, 1000);
+  		
+  	}
+
+    	
+  } 
+  $('#msg').text (counter);
+  --counter;
+  
+  if (counter < 0){
+  	clockOn = false;
+  	blinker(2000);
+  }
+  	
+}
+
+function buildGeometry() {
+	var geometry = new THREE.Geometry();
+  	geometry.vertices.push(
+    new THREE.Vector3(-20, -20, 0),
+    new THREE.Vector3(20, -20, 0),
+    new THREE.Vector3(20, 20, 0),
+    new THREE.Vector3(-20, 20, 0)
+  );
+
+  	var face;
+  	face = new THREE.Face3(0, 1, 2);
+  	geometry.faces.push(face);
+  	face = new THREE.Face3(0, 2, 3);
+  	geometry.faces.push(face);
+
+  	var st0 = new THREE.Vector2(0, 0);
+  	var st1 = new THREE.Vector2(0.2, 0);
+  	var st2 = new THREE.Vector2(0.2, 1);
+  	var st3 = new THREE.Vector2(0, 1);
+  	geometry.faceVertexUvs[0].push([st0, st1, st2]);
+  	geometry.faceVertexUvs[0].push([st0, st2, st3]);
+
+  	geometry.computeBoundingSphere();
+  	geometry.computeFaceNormals();
+  	geometry.computeVertexNormals();
+  	return geometry;
+}
+
+function init() {
+
+	scene = new THREE.Scene();
+  	camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 3000);
+ 	camera.position.z = 200;
+  	camera.position.y = 50;
+  
+  	renderer = new THREE.WebGLRenderer();
+  	renderer.setSize(window.innerWidth, window.innerHeight);
+  	renderer.setClearColor(0x888888);
+
+  	document.body.appendChild(renderer.domElement);
+  
+  	let controls = new OrbitControls(camera, renderer.domElement);
+  	controls.autoRotate = true;
+  
+  /////////////////////////////////////////////////////////////////////
+
+  
+  // load a resource
+  let loader = new THREE.TextureLoader();
+  	loader.crossOrigin = '';
+  	loader.load(
+    // resource URL
+    'https://i.imgur.com/aAXncuv.png',
+    // Function when resource is loaded
+    function(texture) {
+      
+      var texMat = new THREE.MeshBasicMaterial({
+        map: texture,
+        alphaTest: 0.5,
+        side: THREE.DoubleSide
+      });
+      mesh = new THREE.Mesh(buildGeometry(), texMat);
+      mesh.position.set(0, 0, 0.5);
+      mesh.scale.set (1.5, 1.5, 1.5);
+      scene.add(mesh);
+     
+      
+      texture.wrapS = THREE.RepeatWrapping;
+      //texture.wrapT = THREE.RepeatWrapping;
+    },
+		undefined,
+    
+  );
+
+	plane = new THREE.Mesh (new THREE.PlaneGeometry (50,50), new THREE.MeshBasicMaterial({color:0xff0000}));
+	scene.add (plane);
+  
+  	oldColor = new THREE.Color();
+  	plane.material.color.getHSL (oldColor);
+  	window.addEventListener('resize', onWindowResize, false);
+  
+}
+
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+function textureAnimate() {
+
+  if (mesh) {
+    var texture = mesh.material.map;
+    texture.offset.x += 0.2;
+    if (texture.offset.x === Math.floor(texture.offset.x))
+      texture.offset.x = 0;
+   
+  }
+  
+  
+}
+
+function blinker(time) {
+  if (lit === true)
+  	plane.material.color.setHSL (oldColor.h, oldColor.s, 1.0);
+  else
+  	plane.material.color.setHSL (oldColor.h, oldColor.s, oldColor.l);  
+  lit = ! lit;
+  console.log(time);
+  if (!onclick && time > 0)
+  	setTimeout (blinker, 200, time - 200);
+  
+}
+
+
+function animate() {
+
+	
+  
+	requestAnimationFrame(animate);
+  	renderer.render(scene, camera);
+
+}
+
+function render() {
+
+  renderer.render(scene, camera);
+
+}
+
+
+
+</script>
+
+</body>
+</html>
