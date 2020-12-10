@@ -24,8 +24,6 @@
 
 import * as THREE from 'https://unpkg.com/three/build/three.module.js';
 import { OrbitControls } from 'https://unpkg.com/three/examples/jsm/controls/OrbitControls.js';
-import { MTLLoader } from 'https://unpkg.com/three/examples/jsm/loaders/MTLLoader.js';
-import { OBJLoader } from 'https://unpkg.com/three/examples/jsm/loaders/OBJLoader.js';
 
 
 var renderer, scene, camera, controls;
@@ -163,10 +161,7 @@ function textureAnimate() {
     texture.offset.x += 0.2;
     if (texture.offset.x === Math.floor(texture.offset.x))
       texture.offset.x = 0;
-   
   }
-  
-  
 }
 
 function blinker(time) {
@@ -183,18 +178,12 @@ function blinker(time) {
 
 
 function animate() {
-
-	
-  
 	requestAnimationFrame(animate);
   	renderer.render(scene, camera);
-
 }
 
 function render() {
-
   renderer.render(scene, camera);
-
 }
 
 
