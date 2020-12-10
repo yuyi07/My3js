@@ -18,7 +18,7 @@ import { MTLLoader } from 'https://unpkg.com/three/examples/jsm/loaders/MTLLoade
 import { OBJLoader } from 'https://unpkg.com/three/examples/jsm/loaders/OBJLoader.js';
 
 var scene, renderer, camera;
-var meshMaterial;
+var mesh;
 var faces;
 
 init();
@@ -45,68 +45,160 @@ function init() {
     var gridXZ = new THREE.GridHelper(200, 20, 'red', 'white');
     scene.add(gridXZ);
 		/////////////////////////////////////////////////////////////
-	  var dice = new THREE.Group();
+	let loader = new THREE.TextureLoader();
+  	loader.crossOrigin = '';
+  	loader.load(
+    // resource URL
+    'https://i.imgur.com/aAXncuv.png',
+    // Function when resource is loaded
+    function(texture) {
+      
+      var texMat = new THREE.MeshBasicMaterial({
+        map: texture,
+			alphaTest: 0.5,
+			side:THREE.DoubleSide,
+			polygonOffset: true,
+			polygonOffsetFactor: -1.0,
+			polygonOffsetUnits: -4.0
+      });
+      mesh = new THREE.Mesh(buildGeometry(), texMat);
+      
+      scene.add(mesh);
+    },
+	undefined,
+    // Function called when download errors
+    function(xhr) {
+		console.log('An error happened');
+    }
+	);
+	var dice = new THREE.Group();
     scene.add (dice);
+
+	let px = new THREE.Mesh (new THREE.PlaneGeometry (30,30), new THREE.MeshBasicMaterial({color:0xff0000, transparent:true, opacity:0.8, side:THREE.DoubleSide}));
+	dice.add (px);
+	px.rotation.y = Math.PI/2;
+	px.position.set (15,0,0);
+
+	let py = new THREE.Mesh (new THREE.PlaneGeometry (30,30), new THREE.MeshBasicMaterial({color:0x00ff00, transparent:true, opacity:0.8, side:THREE.DoubleSide}));
+	dice.add (py);
+	py.rotation.x = -Math.PI/2;
+	py.position.set (0, 15,0);
+
+	let pz = new THREE.Mesh (new THREE.PlaneGeometry (30,30), new THREE.MeshBasicMaterial({color:0x0000ff, transparent:true, opacity:0.8, side:THREE.DoubleSide}));
+	dice.add (pz);
+	pz.position.set (0, 0, 15);
     
-    // only test 3 faces (px, py, pz);
-    
-    let px = new THREE.Mesh (new THREE.PlaneGeometry (30,30), new THREE.MeshBasicMaterial({color:0xff0000, transparent:true, opacity:0.4}));
-    dice.add (px);
-    px.rotation.y = Math.PI/2;
-    px.position.set (15,0,0);
-    
-    let py = new THREE.Mesh (new THREE.PlaneGeometry (30,30), new THREE.MeshBasicMaterial({color:0x00ff00, transparent:true, opacity:0.4}));
-    dice.add (py);
-    py.rotation.x = -Math.PI/2;
-    py.position.set (0, 15,0);
-    
-    let pz = new THREE.Mesh (new THREE.PlaneGeometry (30,30), new THREE.MeshBasicMaterial({color:0x0000ff, transparent:true, opacity:0.4}));
-    dice.add (pz);
-    //pz.rotation.x = -Math.PI/2;
-    pz.position.set (0, 0, 15);
-    
-   
-    faces = {'px': px, 'py':py, 'pz':pz};
+	let nx = new THREE.Mesh (new THREE.PlaneGeometry (30,30), new THREE.MeshBasicMaterial({color:0x00BFFF, transparent:true, opacity:0.8, side:THREE.DoubleSide}));
+	nx.rotation.y = Math.PI/2;
+	nx.position.set (-15,0,0);
+
+	let ny = new THREE.Mesh (new THREE.PlaneGeometry (30,30), new THREE.MeshBasicMaterial({color:0xFFFF00, transparent:true, opacity:0.8, side:THREE.DoubleSide}));
+	ny.rotation.x = -Math.PI/2;
+	ny.position.set (0, -15,0);
+
+	let nz = new THREE.Mesh (new THREE.PlaneGeometry (30,30), new THREE.MeshBasicMaterial({color:0xFFFFFF, transparent:true, opacity:0.8, side:THREE.DoubleSide}));
+	nz.position.set (0, 0, -15);
+	
+	dice.add (nx, ny, nz);
+    faces = {'px': px, 'py':py, 'pz':pz, 'nx':nx, 'ny':ny, 'nz':nz};
+	
+	setTimeout (textureAnimate, 0);
+	
 }
 
+function buildGeometry() {
+	var geometry = new THREE.Geometry();
+  	geometry.vertices.push(
+    new THREE.Vector3(-20, -20, 0),
+    new THREE.Vector3(20, -20, 0),
+    new THREE.Vector3(20, 20, 0),
+    new THREE.Vector3(-20, 20, 0)
+  );
+
+  	var face;
+  	face = new THREE.Face3(0, 1, 2);
+  	geometry.faces.push(face);
+  	face = new THREE.Face3(0, 2, 3);
+  	geometry.faces.push(face);
+
+  	var st0 = new THREE.Vector2(0, 0);
+  	var st1 = new THREE.Vector2(0.2, 0);
+  	var st2 = new THREE.Vector2(0.2, 1);
+  	var st3 = new THREE.Vector2(0, 1);
+  	geometry.faceVertexUvs[0].push([st0, st1, st2]);
+  	geometry.faceVertexUvs[0].push([st0, st2, st3]);
+
+  	geometry.computeBoundingSphere();
+  	geometry.computeFaceNormals();
+  	geometry.computeVertexNormals();
+  	return geometry;
+}
+
+
 function searchFace () {
-	var maxDot = -1;
-  	var which;
-	var normals = {px: new THREE.Vector3(1,0,0), py: new THREE.Vector3(0,1,0), pz: new THREE.Vector3(0,0,1)};
-	var centers = {px: new THREE.Vector3(15,0,0), py: new THREE.Vector3(0,15,0), pz: new THREE.Vector3(0,0,15)};
+	var maxDot = -1, which;
   
-  let dd, point;
-  point = camera.position.clone().sub (centers['px']).normalize();
-  if ((dd = normals['px'].dot (point)) > maxDot) {
-  	maxDot = dd;
-    which = 'px';
-  }
-  point = camera.position.clone().sub (centers['py']).normalize();
-  if ((dd = normals['py'].dot (point)) > maxDot) {
-  	maxDot = dd;
-    which = 'py';
-  }
-  point = camera.position.clone().sub (centers['pz']).normalize();
-  if ((dd = normals['pz'].dot (point)) > maxDot) {
-  	maxDot = dd;
-    which = 'pz';
-  }
+	var normals = {px: new THREE.Vector3(1,0,0), py: new THREE.Vector3(0,1,0), pz: new THREE.Vector3(0,0,1), nx: new THREE.Vector3(-1,0,0), ny: new THREE.Vector3(0,-1,0), nz: new THREE.Vector3(0,0,-1)};
+	var centers = {px: new THREE.Vector3(15,0,0), py: new THREE.Vector3(0,15,0), pz: new THREE.Vector3(0,0,15), nx: new THREE.Vector3(-15,0,0), ny: new THREE.Vector3(0,-15,0), nz: new THREE.Vector3(0,0,-15)};
+  
+	let dd, point;
+	point = camera.position.clone().sub (centers['px']).normalize();
+	if ((dd = normals['px'].dot (point)) > maxDot) {
+		maxDot = dd;
+		which = 'px';
+	}
+	point = camera.position.clone().sub (centers['py']).normalize();
+	if ((dd = normals['py'].dot (point)) > maxDot) {
+		maxDot = dd;
+		which = 'py';
+	}
+	point = camera.position.clone().sub (centers['pz']).normalize();
+	if ((dd = normals['pz'].dot (point)) > maxDot) {
+		maxDot = dd;
+		which = 'pz';
+	}
+	point = camera.position.clone().sub (centers['nx']).normalize();
+	if ((dd = normals['nx'].dot (point)) > maxDot) {
+		maxDot = dd;
+		which = 'nx';
+	}
+	point = camera.position.clone().sub (centers['ny']).normalize();
+	if ((dd = normals['ny'].dot (point)) > maxDot) {
+		maxDot = dd;
+		which = 'ny';
+	}
+	point = camera.position.clone().sub (centers['nz']).normalize();
+	if ((dd = normals['nz'].dot (point)) > maxDot) {
+		maxDot = dd;
+		which = 'nz';
+	}
 	return which;
 }
 
-function setAllFacesTransparent () {
-  faces['px'].material.transparent = true;
-  faces['py'].material.transparent = true;
-  faces['pz'].material.transparent = true;
+function textureAnimate() {
+setTimeout (textureAnimate, 1000);
+  if (mesh) {
+    var texture = mesh.material.map;
+    texture.offset.x += 0.2;
+    if (texture.offset.x === 1)
+      texture.offset.x = 0;
+  }
 }
 
+
 function animate() {
-	setAllFacesTransparent();
-  
-   // go through all faces, determine which one facing camera
-	let which = searchFace();
-  faces[which].material.transparent = false;
-   
+	var which = searchFace();
+	if(mesh){
+		mesh.position.copy(faces[which].position);
+		mesh.rotation.copy(faces[which].rotation);
+		if(which === 'nx') 
+			mesh.rotation.y = -Math.PI/2;
+		else if(which === 'ny'){
+			mesh.rotation.x = Math.PI/2;
+		}
+		else if(which === 'nz')
+			mesh.rotation.y = Math.PI;
+	}
   requestAnimationFrame(animate);
   render();
 }
