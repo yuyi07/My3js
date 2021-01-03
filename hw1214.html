@@ -19,7 +19,7 @@ import { OBJLoader } from 'https://unpkg.com/three/examples/jsm/loaders/OBJLoade
 
 var renderer, scene, camera, controls;
 var sceneHUD, cameraHUD;
-var aframe, whRatio, halfH, halfW;
+var aframe, whRatio, halfH, halfW, gun, frontSight, bullets, bulletsMove;
 init();
 animate();
 
@@ -48,13 +48,15 @@ function init() {
 
   	window.addEventListener('resize', onWindowResize, false);
 
+	bullets = [];
+	bulletsMove = [];
   
   /////////////////////////////////////////////////////////////////////
 	var cube1 = new THREE.Mesh(new THREE.BoxGeometry(20, 20, 20),
     new THREE.MeshLambertMaterial({
     	color: 0xff1234
     }));
-  	cube1.position.x = -60;
+  	cube1.position.x = 0;
   	scene.add(cube1);
   	
 
@@ -64,6 +66,8 @@ function init() {
   	});
   	cube2.position.x = 60;
   	scene.add(cube2);
+  	
+  	
 
   //////////////////////////////////////////////////////////
   	renderer.autoClear = false;
@@ -77,14 +81,13 @@ function init() {
 
 	let loader = new THREE.TextureLoader();
   	loader.crossOrigin = '';
-  	var texture = loader.load('https://i.imgur.com/8nXsKjP.png');
+  	var texture = loader.load('https://i.imgur.com/upJ8Uet.png');
   	var texMat = new THREE.MeshBasicMaterial({
     	map: texture,
     	alphaTest: 0.5,
     	side: THREE.DoubleSide
   	});
-
-  	let fframe = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), texMat);
+  	gun = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), texMat);
 
 	loader = new THREE.TextureLoader();
   	loader.crossOrigin = '';
@@ -94,14 +97,16 @@ function init() {
     	alphaTest: 0.5,
     	side: THREE.DoubleSide
   	});
-  	let button = new THREE.Mesh(new THREE.CircleGeometry(halfW / 15, 30), texMat);
-	fframe.position.set(-5, 0, 0);
+  	
+	frontSight = new THREE.Mesh(new THREE.CircleGeometry(halfW / 15, 30), texMat);
+	frontSight.position.set(0, 2, 0);
+	gun.position.set(3, 0, 0);
 
   	sceneHUD.add(aframe)
-  	aframe.add(fframe);
-  	aframe.add(button)
+  	aframe.add(gun);
+  	aframe.add(frontSight)
   	aframe.position.set(0, -(halfH - halfW / 10), 0)
-  
+  	camera.lookAt(aframe.position);
   	document.addEventListener('mousedown', hudButtonPick, false);
 }
 
@@ -152,13 +157,94 @@ function hudButtonPick (event) {
 
 }
 
+function setEventsMouse(){
+	window.addEventListener( 'click', function(e){
+		if(e.button===0){
+			var geometry = new THREE.CylinderGeometry( 1, 1, 3, 64 );
+			var material = new THREE.MeshBasicMaterial( {color: 0xffd700} );
+			var bullet = new THREE.Mesh( geometry, material );
+			bullet.rotation.y = Math.PI/2;
+			scene.add( bullet );
+			bullet,position.set(camera.lookAt(Mesh.position));
+			bullet.position.z--;
+		}
+	});
+}
+
+window.addEventListener("keydown", checkKeyPressed, false);
+function checkKeyPressed(e) {
+	var oldPos = frontSight.position.clone();
+	if (e.keyCode == 65) {
+    	frontSight.position.x -= 1;
+		var newPos = frontSight.position.clone();
+		updateGun(oldPos, newPos);
+	}
+	if (e.keyCode == 68) {
+    	frontSight.position.x += 1;
+		var newPos = frontSight.position.clone();
+		updateGun(oldPos, newPos);
+	}
+	if (e.keyCode == 83) {
+    	frontSight.position.y -= 1;
+		var newPos = frontSight.position.clone();
+		updateGun(oldPos, newPos);
+	}
+	if (e.keyCode == 87) {
+    	frontSight.position.y += 1;
+		var newPos = frontSight.position.clone();
+		updateGun(oldPos, newPos);
+	}
+	if (e.keyCode == 32) {
+    	shooting();
+	}
+};
+
+function updateGun(oldPos, newPos) {
+	oldPos = oldPos.clone().sub(gun.position);
+	newPos = newPos.clone().sub(gun.position);
+	// console.log("o:"+oldPos+"n"+newPos);
+	console.log(oldPos);
+	console.log(newPos);
+	var oldAngle = Math.atan2(oldPos.x, oldPos.y);
+	var newAngle = Math.atan2(newPos.x, newPos.y);
+	var delta = newAngle - oldAngle;
+	console.log(delta);
+	gun.rotation.z -= delta;
+}
+
+function shooting() {
+	var lookAtVector = new THREE.Vector3(0,0, -1);
+	lookAtVector.applyQuaternion(camera.quaternion);
+	var geometry = new THREE.CylinderGeometry( 1, 1, 1, 64 );
+	var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+	var bullet = new THREE.Mesh( geometry, material );
+	bullet.rotation.x = Math.PI/2;
+	scene.add(bullet);
+
+	bullet.position.set(camera.position.x, camera.position.y, camera.position.z);
+	var startPos = new THREE.Vector3();
+	frontSight.getWorldPosition(startPos);
+	console.log(startPos);
+	bullet.position.add(startPos);
+	bullets.push(bullet);
+	bulletsMove.push(lookAtVector.clone());
+}
+
+function updateBullet() {
+	for(var i=0; i<bullets.length; i++){
+		bullets[i].position.add(bulletsMove[i]);
+	}
+}
+
+
+
 function animate() {
 
 	renderer.clear(true);
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
   renderer.render(sceneHUD, cameraHUD);
-
+	updateBullet();
 }
 
 </script>
