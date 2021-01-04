@@ -19,6 +19,7 @@ import { OBJLoader } from 'https://unpkg.com/three/examples/jsm/loaders/OBJLoade
 
 var renderer, scene, camera, controls;
 var sceneHUD, cameraHUD;
+var aframe, whRatio, halfH, halfW;
 var aframe, whRatio, halfH, halfW, gun, frontSight, bullets, bulletsMove, barrel;
 
 
@@ -97,27 +98,42 @@ function init() {
 
   	window.addEventListener('resize', onWindowResize, false);
 
+
 	bullets = [];
 	bulletsMove = [];
+
   
   /////////////////////////////////////////////////////////////////////
 	var box1 = new THREE.Mesh(new THREE.BoxGeometry(20, 20, 20),
     new THREE.MeshLambertMaterial({
     	color: 0xff1234
     }));
+
+
+  	cube1.position.x = -60;
+
+  	cube1.position.x = 0;
+
+  	scene.add(cube1);
+
   	box1.position.x = 0;
   	scene.add(box1);
+
   	
 
   	var box2 = box1.clone();
   	box2.material = new THREE.MeshLambertMaterial({
   		color: 0x2134ff
   	});
+
+  	cube2.position.x = 60;
+  	scene.add(cube2);
+
   	box2.position.x = 60;
   	scene.add(box2);
-  	
+
   	///////////////////////////
-  	
+
   	/*
   setUpOffsetArray();
 
@@ -164,13 +180,20 @@ function init() {
 
 	var loader = new THREE.TextureLoader();
   	loader.crossOrigin = '';
+  	var texture = loader.load('https://i.imgur.com/AzJquZI.png');
   	var texture = loader.load('https://i.imgur.com/upJ8Uet.png');
   	var texMat = new THREE.MeshBasicMaterial({
     	map: texture,
     	alphaTest: 0.5,
     	side: THREE.DoubleSide
   	});
+
+
+  	let fframe = new THREE.Mesh(new THREE.PlaneGeometry(5, 5), texMat);
+	fframe.position.set(5, 0, 0);
+
   	gun = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), texMat);
+
 
 	loader = new THREE.TextureLoader();
   	loader.crossOrigin = '';
@@ -180,7 +203,15 @@ function init() {
     	alphaTest: 0.5,
     	side: THREE.DoubleSide
   	});
-  	
+
+  	let button = new THREE.Mesh(new THREE.CircleGeometry(halfW / 15, 30), texMat);
+
+  	sceneHUD.add(aframe)
+  	aframe.add(fframe);
+  	aframe.add(button)
+  	aframe.position.set(0, -(halfH - halfW / 10), 0)
+  
+
 	frontSight = new THREE.Mesh(new THREE.CircleGeometry(halfW / 15, 30), texMat);
 	frontSight.position.set(0, 2, 0);
 	gun.position.set(3, 0, 0);
@@ -195,7 +226,9 @@ function init() {
   	aframe.add(gun, barrel);
   	aframe.add(frontSight)
   	aframe.position.set(0, -(halfH - halfW / 10), 0)
+  	camera.lookAt(aframe.position);
   	camera.lookAt(barrel.position);
+
   	document.addEventListener('mousedown', hudButtonPick, false);
 }
 
@@ -324,6 +357,7 @@ function updateBullet() {
 		bullets[i].position.add(bulletsMove[i]);
 	}
 }
+
 /*
 function spriteAnimate() {
   console.log (uvOffsetArray[baseS][baseT]);
@@ -335,6 +369,7 @@ function spriteAnimate() {
   }
 }
 */
+
 function animate() {
 	/*
 	counter++;
@@ -344,10 +379,18 @@ function animate() {
     	spriteAnimate();
     	*/
 	renderer.clear(true);
+  requestAnimationFrame(animate);
+  renderer.render(scene, camera);
+  renderer.render(sceneHUD, cameraHUD);
+
+
+
   	requestAnimationFrame(animate);
   	renderer.render(scene, camera);
   	renderer.render(sceneHUD, cameraHUD);
+
 	updateBullet();
+
 }
 
 </script>
