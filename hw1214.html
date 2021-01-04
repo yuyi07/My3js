@@ -37,9 +37,7 @@ function setUpOffsetArray() {
     uvOffsetArray.push(row);
   }
 }
-
 function buildSprite(texMat) {
-
   var geometry = new THREE.Geometry();
   geometry.vertices.push(
     new THREE.Vector3(-15, -15, 0),
@@ -47,13 +45,11 @@ function buildSprite(texMat) {
     new THREE.Vector3(15, 15, 0),
     new THREE.Vector3(-15, 15, 0)
   );
-
   var face;
   face = new THREE.Face3(0, 1, 2);
   geometry.faces.push(face);
   face = new THREE.Face3(0, 2, 3);
   geometry.faces.push(face);
-
 	// upper left corner
 	var uv0 = new THREE.Vector2(0.0,0.75);
 	var uv1 = new THREE.Vector2(0.125,0.75);
@@ -62,14 +58,11 @@ function buildSprite(texMat) {
   
   geometry.faceVertexUvs[0].push([uv0, uv1, uv2]);
   geometry.faceVertexUvs[0].push([uv0, uv2, uv3]);
-
   geometry.computeBoundingSphere();
   geometry.computeFaceNormals();
   geometry.computeVertexNormals();
-
   sprite = new THREE.Mesh(geometry, texMat);
   scene.add(sprite);
-
 }
 */
 
@@ -104,47 +97,35 @@ function init() {
 
   
   /////////////////////////////////////////////////////////////////////
-	var box1 = new THREE.Mesh(new THREE.BoxGeometry(20, 20, 20),
+	var cube1 = new THREE.Mesh(new THREE.BoxGeometry(20, 20, 20),
     new THREE.MeshLambertMaterial({
     	color: 0xff1234
     }));
 
 
   	cube1.position.x = -60;
-
-  	cube1.position.x = 0;
-
   	scene.add(cube1);
-
-  	box1.position.x = 0;
-  	scene.add(box1);
 
   	
 
-  	var box2 = box1.clone();
-  	box2.material = new THREE.MeshLambertMaterial({
+  	var cube2 = cube1.clone();
+  	cube2.material = new THREE.MeshLambertMaterial({
   		color: 0x2134ff
   	});
 
   	cube2.position.x = 60;
   	scene.add(cube2);
 
-  	box2.position.x = 60;
-  	scene.add(box2);
-
   	///////////////////////////
 
   	/*
   setUpOffsetArray();
-
   // instantiate a loader
   var loader = new THREE.TextureLoader();
-
   // load a resource
   loader.load(
     // resource URL
     'https://i.imgur.com/6ePTx6p.png',
-
     // Function when resource is loaded
     function(texture) {
       // Plane with default texture coordinates [0,1]x[0,1]
@@ -180,7 +161,7 @@ function init() {
 
 	var loader = new THREE.TextureLoader();
   	loader.crossOrigin = '';
-  	var texture = loader.load('https://i.imgur.com/AzJquZI.png');
+  	//var texture = loader.load('https://i.imgur.com/AzJquZI.png');
   	var texture = loader.load('https://i.imgur.com/upJ8Uet.png');
   	var texMat = new THREE.MeshBasicMaterial({
     	map: texture,
@@ -208,7 +189,7 @@ function init() {
 
   	sceneHUD.add(aframe)
   	aframe.add(fframe);
-  	aframe.add(button)
+  	//aframe.add(button)
   	aframe.position.set(0, -(halfH - halfW / 10), 0)
   
 
@@ -374,7 +355,6 @@ function animate() {
 	/*
 	counter++;
   	controls.update();
-
   	if (counter % 14 === 0)
     	spriteAnimate();
     	*/
