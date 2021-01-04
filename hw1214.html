@@ -19,13 +19,58 @@ import { OBJLoader } from 'https://unpkg.com/three/examples/jsm/loaders/OBJLoade
 
 var renderer, scene, camera, controls;
 var sceneHUD, cameraHUD;
-<<<<<<< HEAD
 var aframe, whRatio, halfH, halfW;
-=======
-var aframe, whRatio, halfH, halfW, gun, frontSight, bullets, bulletsMove;
->>>>>>> master
+var aframe, whRatio, halfH, halfW, gun, frontSight, bullets, bulletsMove, barrel;
+
+
 init();
 animate();
+/*
+function setUpOffsetArray() {
+  var rowCount = 4; // 4x8 sprites
+  var colCount = 8;
+  for (var i = 0; i < rowCount; i++) {
+    var row = [];
+    for (var j = 0; j < colCount; j++)
+      row.push(new THREE.Vector2(j * 0.125, - 0.25 * i));
+    uvOffsetArray.push(row);
+  }
+}
+
+function buildSprite(texMat) {
+
+  var geometry = new THREE.Geometry();
+  geometry.vertices.push(
+    new THREE.Vector3(-15, -15, 0),
+    new THREE.Vector3(15, -15, 0),
+    new THREE.Vector3(15, 15, 0),
+    new THREE.Vector3(-15, 15, 0)
+  );
+
+  var face;
+  face = new THREE.Face3(0, 1, 2);
+  geometry.faces.push(face);
+  face = new THREE.Face3(0, 2, 3);
+  geometry.faces.push(face);
+
+	// upper left corner
+	var uv0 = new THREE.Vector2(0.0,0.75);
+	var uv1 = new THREE.Vector2(0.125,0.75);
+	var uv2 = new THREE.Vector2(0.125,1.0);
+	var uv3 = new THREE.Vector2(0.0,1.0);
+  
+  geometry.faceVertexUvs[0].push([uv0, uv1, uv2]);
+  geometry.faceVertexUvs[0].push([uv0, uv2, uv3]);
+
+  geometry.computeBoundingSphere();
+  geometry.computeFaceNormals();
+  geometry.computeVertexNormals();
+
+  sprite = new THREE.Mesh(geometry, texMat);
+  scene.add(sprite);
+
+}
+*/
 
 function init() {
 
@@ -52,36 +97,75 @@ function init() {
 
   	window.addEventListener('resize', onWindowResize, false);
 
-<<<<<<< HEAD
-=======
+
 	bullets = [];
 	bulletsMove = [];
->>>>>>> master
+
   
   /////////////////////////////////////////////////////////////////////
-	var cube1 = new THREE.Mesh(new THREE.BoxGeometry(20, 20, 20),
+	var box1 = new THREE.Mesh(new THREE.BoxGeometry(20, 20, 20),
     new THREE.MeshLambertMaterial({
     	color: 0xff1234
     }));
-<<<<<<< HEAD
+
+
   	cube1.position.x = -60;
-=======
+
   	cube1.position.x = 0;
->>>>>>> master
+
   	scene.add(cube1);
+
+  	box1.position.x = 0;
+  	scene.add(box1);
+
   	
 
-  	var cube2 = cube1.clone();
-  	cube2.material = new THREE.MeshLambertMaterial({
+  	var box2 = box1.clone();
+  	box2.material = new THREE.MeshLambertMaterial({
   		color: 0x2134ff
   	});
+
   	cube2.position.x = 60;
   	scene.add(cube2);
-<<<<<<< HEAD
-=======
-  	
-  	
->>>>>>> master
+
+  	box2.position.x = 60;
+  	scene.add(box2);
+
+  	///////////////////////////
+
+  	/*
+  setUpOffsetArray();
+
+  // instantiate a loader
+  var loader = new THREE.TextureLoader();
+
+  // load a resource
+  loader.load(
+    // resource URL
+    'https://i.imgur.com/6ePTx6p.png',
+
+    // Function when resource is loaded
+    function(texture) {
+      // Plane with default texture coordinates [0,1]x[0,1]
+      var texMat = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true, // cutout texture: set transparent: true
+        side: THREE.DoubleSide
+      });
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      buildSprite(texMat);
+    },
+    // Function called when download progresses
+    function(xhr) {
+      console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+    },
+    // Function called when download errors
+    function(xhr) {
+      console.log('An error happened');
+    }
+  );
+*/
 
   //////////////////////////////////////////////////////////
   	renderer.autoClear = false;
@@ -93,26 +177,23 @@ function init() {
 
   	aframe = new THREE.Group();
 
-	let loader = new THREE.TextureLoader();
+	var loader = new THREE.TextureLoader();
   	loader.crossOrigin = '';
-<<<<<<< HEAD
   	var texture = loader.load('https://i.imgur.com/AzJquZI.png');
-=======
   	var texture = loader.load('https://i.imgur.com/upJ8Uet.png');
->>>>>>> master
   	var texMat = new THREE.MeshBasicMaterial({
     	map: texture,
     	alphaTest: 0.5,
     	side: THREE.DoubleSide
   	});
-<<<<<<< HEAD
+
 
   	let fframe = new THREE.Mesh(new THREE.PlaneGeometry(5, 5), texMat);
 	fframe.position.set(5, 0, 0);
-=======
+
   	gun = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), texMat);
 
->>>>>>> master
+
 	loader = new THREE.TextureLoader();
   	loader.crossOrigin = '';
   	var texture = loader.load('https://i.imgur.com/vBTTePp.png');
@@ -121,7 +202,7 @@ function init() {
     	alphaTest: 0.5,
     	side: THREE.DoubleSide
   	});
-<<<<<<< HEAD
+
   	let button = new THREE.Mesh(new THREE.CircleGeometry(halfW / 15, 30), texMat);
 
   	sceneHUD.add(aframe)
@@ -129,18 +210,24 @@ function init() {
   	aframe.add(button)
   	aframe.position.set(0, -(halfH - halfW / 10), 0)
   
-=======
-  	
+
 	frontSight = new THREE.Mesh(new THREE.CircleGeometry(halfW / 15, 30), texMat);
 	frontSight.position.set(0, 2, 0);
 	gun.position.set(3, 0, 0);
 
+	var geometry = new THREE.CylinderGeometry( 1, 1, 3, 64 );
+	var material = new THREE.MeshBasicMaterial( {color: 0xffd700, visible:false} );
+	barrel = new THREE.Mesh( geometry, material );
+	barrel.position.set(3, 0, 0);
+	barrel.rotation.x = Math.PI/2;
+	
   	sceneHUD.add(aframe)
-  	aframe.add(gun);
+  	aframe.add(gun, barrel);
   	aframe.add(frontSight)
   	aframe.position.set(0, -(halfH - halfW / 10), 0)
   	camera.lookAt(aframe.position);
->>>>>>> master
+  	camera.lookAt(barrel.position);
+
   	document.addEventListener('mousedown', hudButtonPick, false);
 }
 
@@ -148,7 +235,7 @@ function onWindowResize() {
 	// renderer resize
 	
   	renderer.setSize(window.innerWidth, window.innerHeight);
-   whRatio = window.innerWidth / window.innerHeight;
+   	whRatio = window.innerWidth / window.innerHeight;
 
 	// perspective camera resize
   camera.aspect = whRatio;
@@ -236,8 +323,8 @@ function checkKeyPressed(e) {
 };
 
 function updateGun(oldPos, newPos) {
-	oldPos = oldPos.clone().sub(gun.position);
-	newPos = newPos.clone().sub(gun.position);
+	oldPos = oldPos.clone().sub(barrel.position);
+	newPos = newPos.clone().sub(barrel.position);
 	// console.log("o:"+oldPos+"n"+newPos);
 	console.log(oldPos);
 	console.log(newPos);
@@ -251,7 +338,7 @@ function updateGun(oldPos, newPos) {
 function shooting() {
 	var lookAtVector = new THREE.Vector3(0,0, -1);
 	lookAtVector.applyQuaternion(camera.quaternion);
-	var geometry = new THREE.CylinderGeometry( 1, 1, 1, 64 );
+	var geometry = new THREE.SphereGeometry( 1, 64, 64 );
 	var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
 	var bullet = new THREE.Mesh( geometry, material );
 	bullet.rotation.x = Math.PI/2;
@@ -272,20 +359,39 @@ function updateBullet() {
 	}
 }
 
+/*
+function spriteAnimate() {
+  console.log (uvOffsetArray[baseS][baseT]);
+  
+	sprite.material.map.offset.copy (uvOffsetArray[baseS][baseT]);  
+  baseT = (baseT + 1) % 8;
+  if (baseT === 0) {
+    baseS = (baseS + 1) % 4;
+  }
+}
+*/
 
-
->>>>>>> master
 function animate() {
+	/*
+	counter++;
+  	controls.update();
 
+  	if (counter % 14 === 0)
+    	spriteAnimate();
+    	*/
 	renderer.clear(true);
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
   renderer.render(sceneHUD, cameraHUD);
-<<<<<<< HEAD
 
-=======
+
+
+  	requestAnimationFrame(animate);
+  	renderer.render(scene, camera);
+  	renderer.render(sceneHUD, cameraHUD);
+
 	updateBullet();
->>>>>>> master
+
 }
 
 </script>
